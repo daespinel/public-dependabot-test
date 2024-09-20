@@ -4,14 +4,15 @@ FROM python:3.9-slim-buster
 
 COPY docker-entrypoint.sh /
 
-RUN addgroup -g 1000 -S user_app \
- && adduser -u 1000 -S user_app -G user_app \
+RUN groupadd -g 1000 -r python \
+ && useradd --no-log-init -u 1000 -r -g python python \
  && apt-get -y -q update --no-install-recommends \
  && apt-get -y -q install --no-install-recommends curl gosu net-tools procps \
  && TINI_VERSION="v0.19.0" \
  && curl -L https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini -o /tini \
  && chmod +x /tini \
- && apt-get -y update && pip install -upgrade pip
+ && apt-get -y update && pip install --upgrade pip \
+ && apt-get -y -q install --no-install-recommends g++ libcairo2 gir1.2-gtk-3.0 
 
 ENTRYPOINT ["tini","--","/docker-entrypoint.sh"]
 
